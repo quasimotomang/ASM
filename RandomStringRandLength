@@ -1,0 +1,62 @@
+INCLUDE Irvine32.inc
+MAXLEN = 100
+strLen = MAXLEN + 1
+.data
+    buffer BYTE strLen DUP(?), 0
+    count DWORD ?
+.code
+main PROC
+    call Clrscr
+    
+    ; Initialize the random number generator
+    call Randomize
+    
+    mov ecx, 20 ; generate 20 random strings
+    L1:
+        call CreateRandomString
+        mov edx, offset buffer
+        call WriteString
+        call Crlf
+        inc count
+        loop L1
+    
+    ; Display the number of strings generated
+    mov eax, count
+    call WriteDec
+    mov edx, offset message
+    call WriteString
+    
+    call WaitMsg
+    exit
+main ENDP
+
+CreateRandomString PROC
+    push ebx
+    push ecx
+    push edx
+    
+    ; Generate a random length between 1 and MAXLEN
+    mov ecx, MAXLEN
+    call RandomRange
+    inc eax ; minimum length is 1
+    
+    ; Store the length of the string in the first byte
+    mov [buffer], al
+    
+    ; Generate random characters for the string
+    mov esi, offset buffer + 1 ; set esi to point to the second byte
+    L2:
+        mov eax, 26
+        call RandomRange
+        add eax, 'A' ; convert to ASCII code
+        mov [esi], al
+        inc esi
+        loop L2
+    
+    pop edx
+    pop ecx
+    pop ebx
+    ret
+CreateRandomString ENDP
+
+END main
